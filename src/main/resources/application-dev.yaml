@@ -19,3 +19,33 @@ logging:
     com.github.cyberpunkperson: debug
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X] %logger{80} %msg%n'
+
+kafka:
+  config:
+    bootstrap-servers: ${kafka.cluster.url}
+    properties: &default-kafka-config
+      security:
+        protocol: SASL_PLAINTEXT
+      sasl:
+        mechanism: SCRAM-SHA-512
+        jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${kafka.claster.username}" password="${kafka.claster.password}";
+      request.timeout.ms: 300000
+    producer:
+      properties:
+        <<: *default-kafka-config
+        acks: all
+    consumer: &default-consumer
+      group-id: ${spring.application.name}
+      key-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      properties:
+        <<: *default-kafka-config
+        max.poll.records: 50
+        max.poll.interval.ms: 500000
+        session.timeout.ms: 60000
+        auto.offset.reset: latest
+  topic:
+    source:
+      url: ${kafka.cluster.url}
+      names: source.topic
+      consumer: *default-consumer
