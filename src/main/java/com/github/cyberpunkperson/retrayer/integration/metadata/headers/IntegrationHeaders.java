@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retrayer.integration;
+package com.github.cyberpunkperson.retrayer.integration.metadata.headers;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.messaging.MessageHeaders;

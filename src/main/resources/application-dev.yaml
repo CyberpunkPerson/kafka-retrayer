@@ -46,6 +46,6 @@ kafka:
         auto.offset.reset: latest
   topic:
     source:
-      url: ${kafka.cluster.url}
+      bootstrap-servers: ${kafka.config.bootstrap-servers}
       names: source.topic
       consumer: *default-consumer
