@@ -47,5 +47,5 @@ kafka:
   topic:
     source:
       bootstrap-servers: ${kafka.config.bootstrap-servers}
-      names: source.topic
+      names: ${spring.application.name}.source
       consumer: *default-consumer

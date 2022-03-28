@@ -1,5 +1,6 @@
 package com.github.cyberpunkperson.retrayer.domain.source.configuration;
 
+import com.github.cyberpunkperson.retrayer.integration.ChannelBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.config.EnableIntegration;
@@ -12,7 +13,6 @@ import org.springframework.kafka.support.converter.RecordMessageConverter;
 import org.springframework.messaging.MessageChannel;
 
 import static org.springframework.integration.dsl.IntegrationFlows.from;
-import static org.springframework.integration.dsl.MessageChannels.publishSubscribe;
 
 @Configuration
 @EnableIntegration
@@ -38,16 +38,17 @@ class SourceConfiguration {
     }
 
     @Bean
-    MessageChannel inboundSourceChannel() {
-        return publishSubscribe().get();
+    MessageChannel inboundSourceChannel(ChannelBuilder channelBuilder) {
+        return channelBuilder
+                .publishSubscribeChannel("inboundSourceChannel-%d")
+                .get();
     }
 
     @Bean
-    IntegrationFlow inboundSourceFlow(KafkaMessageDrivenChannelAdapter<byte[], byte[]> inboundSourceChannelAdapter) {
+    IntegrationFlow inboundSourceFlow(KafkaMessageDrivenChannelAdapter<byte[], byte[]> inboundSourceChannelAdapter,
+                                      MessageChannel inboundSourceChannel) {
         return from(inboundSourceChannelAdapter)
-                .handle(message -> {
-                    System.out.println("Stop");
-                })
+                .channel(inboundSourceChannel)
                 .get();
     }
 }
