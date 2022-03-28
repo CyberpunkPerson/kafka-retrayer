@@ -27,6 +27,7 @@ import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.R
 import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_TOPIC;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.isNull;
+import static org.springframework.util.Assert.isTrue;
 
 @Component
 class SourceHeaderMapper extends AbstractKafkaHeaderMapper {
@@ -48,8 +49,7 @@ class SourceHeaderMapper extends AbstractKafkaHeaderMapper {
         var requiredHeaders = new HashSet<>(REQUIRED_HEADERS);
         source.forEach(header -> requiredHeaders.remove(header.key()));
 
-        if (!requiredHeaders.isEmpty())
-            throw new IllegalArgumentException("Required headers are missing");
+        isTrue(requiredHeaders.isEmpty(), "Required headers are missing");
 
         var retryInterval = integer(source.lastHeader(RETRY_INTERVAL));
         var recordPartition = integer(source.lastHeader(SOURCE_RECORD_PARTITION));
