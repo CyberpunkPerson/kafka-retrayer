@@ -12,7 +12,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 
 @EnableKafka
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class SourceKafkaConfiguration {
 
     @Bean

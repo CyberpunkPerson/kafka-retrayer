@@ -1,16 +1,25 @@
 package com.github.cyberpunkperson.retrayer.integration.metadata.headers;
 
 import lombok.experimental.UtilityClass;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Set;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Optional.ofNullable;
+
 @UtilityClass
-public class RetryHeaders {
-    public static final String SOURCE_RECORD_METADATA = "retry.source.record.metadata";
-    public static final String SOURCE_RECORD_TIMESTAMP = "retry.source.record.timestamp";
+public class RetryHeaders { //todo remove 'source' prefix?
+    public static final String SOURCE_RECORD_APPLICATION_NAME = "retry.source.record.application.name";
     public static final String SOURCE_RECORD_GROUP_ID = "retry.source.record.group.id";
+    public static final String SOURCE_RECORD_KEY = "retry.source.record.key";
+    public static final String SOURCE_RECORD_TIMESTAMP = "retry.source.record.timestamp";
+    public static final String SOURCE_RECORD_FLOW = "retry.source.record.flow";
     public static final String RECORD_REDELIVERY_ATTEMPTS = "retry.redelivery.attempts";
-    public static final String RETRY_INTERVAL = "retry.interval.s";
     public static final String SOURCE_RECORD_TOPIC = "retry.source.record.topic";
     public static final String SOURCE_RECORD_OFFSET = "retry.source.record.offset";
     public static final String SOURCE_RECORD_PARTITION = "retry.source.record.partition";
@@ -18,7 +27,8 @@ public class RetryHeaders {
     public static final String SOURCE_RECORD_ERROR_TIMESTAMP = "retry.source.record.error.timestamp";
 
     public static final Set<String> REQUIRED_HEADERS = Set.of(
-            RETRY_INTERVAL,
+            SOURCE_RECORD_APPLICATION_NAME,
+            SOURCE_RECORD_KEY,
             SOURCE_RECORD_TIMESTAMP,
             SOURCE_RECORD_TOPIC,
             SOURCE_RECORD_PARTITION,
@@ -27,4 +37,31 @@ public class RetryHeaders {
             SOURCE_RECORD_ERROR_TIMESTAMP,
             SOURCE_RECORD_ERROR_MESSAGE
     );
+
+    public static int getDeliveryAttempts(Headers headers) {
+        return ofNullable(headers.lastHeader(RECORD_REDELIVERY_ATTEMPTS))
+                .map(RetryHeaders::integer)
+                .orElse(0);
+    }
+
+    public static long longInt(Header header) {
+        return Long.parseLong(new String(header.value(), UTF_8));
+    }
+
+    public static int integer(Header header) {
+        return Integer.parseInt(new String(header.value(), UTF_8));
+    }
+
+    public static Instant instant(Header header) {
+        try {
+            return DateTimeFormatter.ISO_INSTANT.parse(new String(header.value(), UTF_8), Instant::from);
+        } catch (DateTimeParseException e) {
+            var ms = Long.parseLong(new String(header.value()));
+            return Instant.ofEpochMilli(ms);
+        }
+    }
+
+    public static String string(Header header) {
+        return new String(header.value(), UTF_8);
+    }
 }

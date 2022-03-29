@@ -1,36 +1,44 @@
 package com.github.cyberpunkperson.retrayer.domain.source;
 
-import com.github.cyberpunkperson.retrayer.domain.RecordMetadata;
-import org.apache.kafka.common.header.Header;
+import com.github.cyberpunkperson.retrayer.domain.retry.configuration.properties.RetryProperties;
+import com.github.cyberpunkperson.retrayer.domain.retry.flow.RecordFlowContext;
+import com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.kafka.support.AbstractKafkaHeaderMapper;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.HashSet;
 import java.util.Map;
 
-import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.RECORD_REDELIVERY_ATTEMPTS;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.IntegrationHeaders.DEFAULT_FLOW;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.IntegrationHeaders.RECORD_CONTEXT;
 import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.REQUIRED_HEADERS;
-import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.RETRY_INTERVAL;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_APPLICATION_NAME;
 import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_ERROR_MESSAGE;
 import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_ERROR_TIMESTAMP;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_FLOW;
 import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_GROUP_ID;
-import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_METADATA;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_KEY;
 import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_OFFSET;
 import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_PARTITION;
 import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_TIMESTAMP;
 import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_TOPIC;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Objects.isNull;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.getDeliveryAttempts;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.instant;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.integer;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.longInt;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.string;
+import static java.util.Optional.ofNullable;
 import static org.springframework.util.Assert.isTrue;
 
 @Component
+@RequiredArgsConstructor
 class SourceHeaderMapper extends AbstractKafkaHeaderMapper {
+
+    private final RetryProperties retryProperties;
 
     @Override
     public void fromHeaders(MessageHeaders headers, Headers target) {
@@ -51,48 +59,30 @@ class SourceHeaderMapper extends AbstractKafkaHeaderMapper {
 
         isTrue(requiredHeaders.isEmpty(), "Required headers are missing");
 
-        var retryInterval = integer(source.lastHeader(RETRY_INTERVAL));
+        var applicationName = string(source.lastHeader(SOURCE_RECORD_APPLICATION_NAME));
+        var recordGroupId = string(source.lastHeader(SOURCE_RECORD_GROUP_ID));
+        var recordTopic = string(source.lastHeader(SOURCE_RECORD_TOPIC));
+        var recordOffset = longInt(source.lastHeader(SOURCE_RECORD_OFFSET));
         var recordPartition = integer(source.lastHeader(SOURCE_RECORD_PARTITION));
         var recordTimestamp = instant(source.lastHeader(SOURCE_RECORD_TIMESTAMP));
+        var recordKey = source.lastHeader(SOURCE_RECORD_KEY).value(); //todo get record key!
+        var deliveryAttempt = getDeliveryAttempts(source);
         var recordErrorTimestamp = instant(source.lastHeader(SOURCE_RECORD_ERROR_TIMESTAMP));
-        var recordTopic = string(source.lastHeader(SOURCE_RECORD_TOPIC));
-        var recordGroupId = string(source.lastHeader(SOURCE_RECORD_GROUP_ID));
         var recordErrorMessage = string(source.lastHeader(SOURCE_RECORD_ERROR_MESSAGE));
-        var recordOffset = longInt(source.lastHeader(SOURCE_RECORD_OFFSET));
-        var deliveryAttempts = getDeliveryAttempts(source);
+        var retryFlow = getRecordFlow(source);
 
-        var metadata = new RecordMetadata(recordGroupId, recordTopic, recordTimestamp,
-                retryInterval, recordPartition, recordOffset,
-                deliveryAttempts, recordErrorTimestamp, recordErrorMessage);
+        var context = new RecordFlowContext(applicationName,
+                recordGroupId, recordTopic, recordOffset, recordPartition, recordTimestamp, recordKey,
+                deliveryAttempt, retryFlow, recordErrorTimestamp, recordErrorMessage
+        );
 
-        target.put(SOURCE_RECORD_METADATA, metadata);
+        target.put(RECORD_CONTEXT, context);
     }
 
-    private static int getDeliveryAttempts(Headers source) {
-        if (isNull(source.lastHeader(RECORD_REDELIVERY_ATTEMPTS)))
-            return 0;
-        else
-            return integer(source.lastHeader(RECORD_REDELIVERY_ATTEMPTS));
-    }
-
-    private static long longInt(Header header) {
-        return Long.parseLong(new String(header.value(), UTF_8));
-    }
-
-    private static int integer(Header header) {
-        return Integer.parseInt(new String(header.value(), UTF_8));
-    }
-
-    private static Instant instant(Header header) {
-        try {
-            return DateTimeFormatter.ISO_INSTANT.parse(new String(header.value(), UTF_8), Instant::from);
-        } catch (DateTimeParseException e) {
-            var ms = Long.parseLong(new String(header.value()));
-            return Instant.ofEpochMilli(ms);
-        }
-    }
-
-    private static String string(Header header) {
-        return new String(header.value(), UTF_8);
+    private String getRecordFlow(Headers headers) { //todo set default flow if absent in the outbound channel
+        return ofNullable(headers.lastHeader(SOURCE_RECORD_FLOW))
+                .map(RetryHeaders::string)
+                .filter(flowName -> retryProperties.getFlows().containsKey(flowName))
+                .orElse(DEFAULT_FLOW);
     }
 }

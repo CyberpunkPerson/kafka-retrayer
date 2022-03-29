@@ -14,9 +14,9 @@ import org.springframework.messaging.MessageChannel;
 
 import static org.springframework.integration.dsl.IntegrationFlows.from;
 
-@Configuration
 @EnableIntegration
-class SourceConfiguration {
+@Configuration(proxyBeanMethods = false)
+class SourceFlowConfiguration {
 
     @Bean
     RecordMessageConverter sourceMessageConverter(KafkaHeaderMapper sourceHeaderMapper) {
