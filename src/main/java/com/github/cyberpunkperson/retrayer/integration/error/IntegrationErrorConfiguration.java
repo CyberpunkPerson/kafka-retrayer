@@ -9,7 +9,7 @@ import org.springframework.messaging.MessageHandler;
 import static org.springframework.integration.dsl.IntegrationFlows.from;
 import static org.springframework.integration.dsl.MessageChannels.direct;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class IntegrationErrorConfiguration {
 
     @Bean

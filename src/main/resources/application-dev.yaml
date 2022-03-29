@@ -1,12 +1,20 @@
 spring:
   application:
     name: retrayer
-  jackson:
-    default-property-inclusion: non_null
-    serialization.FAIL_ON_EMPTY_BEANS: false
-    deserialization:
-      FAIL_ON_UNKNOWN_PROPERTIES: false
-      READ_UNKNOWN_ENUM_VALUES_AS_NULL: true
+  datasource:
+    name: retrayer
+    url: jdbc:postgresql://localhost:5432/postgres?ApplicationName=${spring.application.name}
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    hikari:
+      pool-name: retrayer
+      maximum-pool-size: 2
+      max-lifetime: 3600000
+      connection-test-query: select 1
+  jdbc:
+    template:
+      query-timeout: 60s
 
 server:
   servlet:
@@ -28,9 +36,11 @@ kafka:
         protocol: SASL_PLAINTEXT
       sasl:
         mechanism: SCRAM-SHA-512
-        jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${kafka.claster.username}" password="${kafka.claster.password}";
+        jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${kafka.cluster.username}" password="${kafka.cluster.password}";
       request.timeout.ms: 300000
-    producer:
+    producer: &default-producer
+      key-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
       properties:
         <<: *default-kafka-config
         acks: all
@@ -49,3 +59,17 @@ kafka:
       bootstrap-servers: ${kafka.config.bootstrap-servers}
       names: ${spring.application.name}.source
       consumer: *default-consumer
+    retry:
+      bootstrap-servers: ${kafka.config.bootstrap-servers}
+      producer: *default-producer
+
+retry:
+  flows:
+    default:
+      - PT5M
+      - PT30M
+      - PT30M
+      - PT1H
+
+archive:
+  topic: ${spring.application.name}.archive
