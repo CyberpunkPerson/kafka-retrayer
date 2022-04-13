@@ -1,6 +1,5 @@
 package com.github.cyberpunkperson.retrayer.integration.metadata.headers;
 
-import com.github.cyberpunkperson.retrayer.domain.retry.flow.RecordFlowContext;
 import lombok.experimental.UtilityClass;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
@@ -12,7 +11,6 @@ import static com.github.cyberpunkperson.retrayer.integration.logger.MdcKey.OPER
 @UtilityClass
 public class IntegrationHeaders { //todo combine with RetryHeaders?
 
-    public static final String RECORD_CONTEXT = "record.context";
     public static final String DEFAULT_FLOW = "default";
 
 
@@ -20,11 +18,25 @@ public class IntegrationHeaders { //todo combine with RetryHeaders?
         return headers.get(OPERATION_NAME, String.class);
     }
 
-    public static RecordFlowContext getRecordFlowContext(MessageHeaders headers) {
-        return headers.get(RECORD_CONTEXT, RecordFlowContext.class);
+    public static Function<Message<byte[]>, String> extractTopic(String topicHeader) {
+        return message -> message.getHeaders().get(topicHeader, String.class);
     }
 
-    public static Function<Message<Object>, String> determinateTopic() {
-        return message -> ""; //todo impl
+    public static Function<Message<byte[]>, byte[]> extractMessageFey(String messageKeyHeader) {
+        return message -> message.getHeaders().get(messageKeyHeader, byte[].class);
     }
+
+//    public static Map<String, ?> convertHeaders(RetryRecord retryRecord) { todo reuse
+//        return Map.of(
+//                SOURCE_RECORD_APPLICATION_NAME, retryRecord.applicationName(),
+//                SOURCE_RECORD_KEY, retryRecord.key(),
+//                SOURCE_RECORD_TIMESTAMP, retryRecord.timestamp(),
+//                SOURCE_RECORD_TOPIC, retryRecord.topic(),
+//                SOURCE_RECORD_PARTITION, retryRecord.partition(),
+//                SOURCE_RECORD_OFFSET, retryRecord.offset(),
+//                SOURCE_RECORD_GROUP_ID, retryRecord.groupId(),
+//                SOURCE_RECORD_ERROR_TIMESTAMP, retryRecord.errorTimestamp(),
+//                SOURCE_RECORD_ERROR_MESSAGE, retryRecord.errorMessage()
+//        );
+//    }
 }

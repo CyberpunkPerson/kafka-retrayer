@@ -16,15 +16,26 @@ import static org.springframework.util.Assert.isTrue;
 @ConfigurationProperties("retry")
 public class RetryProperties {
 
-    private final Map<String, List<Duration>> flows;
+    private final Map<Duration, RetryInterval> intervals;
+    private final Map<String, List<RetryInterval>> flows;
 
 
-    RetryProperties(Map<String, List<Duration>> flows) {
-        isTrue(flows.containsKey(DEFAULT_FLOW), "Default flow should to be specified");
+    RetryProperties(Map<Duration, RetryInterval> intervals, Map<String, List<RetryInterval>> flows) {
+        isTrue(flows.containsKey(DEFAULT_FLOW), "Default flow should to be specified.");
+        this.intervals = intervals;
         this.flows = flows;
     }
 
-    public List<Duration> getFlow(String flowName) {
+    public List<RetryInterval> getFlow(String flowName) {
         return flows.getOrDefault(flowName, flows.get(DEFAULT_FLOW));
+    }
+
+    public RetryInterval getInterval(String flowName, int deliveryAttempt) {
+        var flow = getFlow(flowName);
+        isTrue(deliveryAttempt < flow.size() && deliveryAttempt > 0, "Delivery attempt is out flow scope");
+        return getFlow(flowName).get(deliveryAttempt);
+    }
+
+    public record RetryInterval(Duration duration, String topic) {
     }
 }

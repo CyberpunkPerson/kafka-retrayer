@@ -1,20 +1,6 @@
 spring:
   application:
     name: retrayer
-  datasource:
-    name: retrayer
-    url: jdbc:postgresql://localhost:5432/postgres?ApplicationName=${spring.application.name}
-    driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: postgres
-    hikari:
-      pool-name: retrayer
-      maximum-pool-size: 2
-      max-lifetime: 3600000
-      connection-test-query: select 1
-  jdbc:
-    template:
-      query-timeout: 60s
 
 server:
   servlet:
@@ -59,17 +45,30 @@ kafka:
       bootstrap-servers: ${kafka.config.bootstrap-servers}
       names: ${spring.application.name}.source
       consumer: *default-consumer
+      listener:
+        concurrency: 3
     retry:
       bootstrap-servers: ${kafka.config.bootstrap-servers}
+      consumer: *default-consumer
       producer: *default-producer
 
 retry:
+  intervals:
+    PT5M: &5M
+      duration: PT5M
+      topic: ${spring.application.name}.interval.${retry.intervals.PT5M.duration}
+    PT30M: &30M
+      duration: PT30M
+      topic: ${spring.application.name}.interval.${retry.intervals.PT30M.duration}
+    PT1H: &1H
+      duration: PT1H
+      topic: ${spring.application.name}.interval.${retry.intervals.PT1H.duration}
   flows:
     default:
-      - PT5M
-      - PT30M
-      - PT30M
-      - PT1H
+      - *5M
+      - *5M
+      - *30M
+      - *1H
 
 archive:
   topic: ${spring.application.name}.archive

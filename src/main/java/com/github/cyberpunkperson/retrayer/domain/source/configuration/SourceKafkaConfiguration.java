@@ -11,27 +11,32 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 
+import static java.util.Optional.ofNullable;
+
 @EnableKafka
 @Configuration(proxyBeanMethods = false)
 class SourceKafkaConfiguration {
 
     @Bean
     @ConfigurationProperties("kafka.topic.source")
-    KafkaProperties sourceConsumerProperties() {
+    KafkaProperties sourceTopicProperties() {
         return new KafkaProperties();
     }
 
     @Bean
-    ConsumerFactory<byte[], byte[]> sourceConsumerFactory(KafkaProperties sourceConsumerProperties) {
-        return new DefaultKafkaConsumerFactory<>(sourceConsumerProperties.buildConsumerProperties());
+    ConsumerFactory<byte[], byte[]> sourceConsumerFactory(KafkaProperties sourceTopicProperties) {
+        return new DefaultKafkaConsumerFactory<>(sourceTopicProperties.buildConsumerProperties());
     }
 
     @Bean
-    ConcurrentKafkaListenerContainerFactory<byte[], byte[]> sourceContainerFactory(ConsumerFactory<byte[], byte[]> sourceConsumerFactory) {
-        ConcurrentKafkaListenerContainerFactory<byte[], byte[]> container = new ConcurrentKafkaListenerContainerFactory<>();
-        container.setConsumerFactory(sourceConsumerFactory);
-        container.setConcurrency(1);
-        return container;
+    ConcurrentKafkaListenerContainerFactory<byte[], byte[]> sourceContainerFactory(KafkaProperties sourceTopicProperties,
+                                                                                   ConsumerFactory<byte[], byte[]> sourceConsumerFactory) {
+        var containerFactory = new ConcurrentKafkaListenerContainerFactory<byte[], byte[]>();
+        containerFactory.setConsumerFactory(sourceConsumerFactory);
+
+        var consumersCount = ofNullable(sourceTopicProperties.getListener().getConcurrency()).orElse(1);
+        containerFactory.setConcurrency(consumersCount);
+        return containerFactory;
     }
 
     @Bean

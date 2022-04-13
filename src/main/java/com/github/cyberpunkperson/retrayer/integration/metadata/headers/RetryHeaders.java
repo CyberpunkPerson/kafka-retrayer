@@ -2,7 +2,6 @@ package com.github.cyberpunkperson.retrayer.integration.metadata.headers;
 
 import lombok.experimental.UtilityClass;
 import org.apache.kafka.common.header.Header;
-import org.apache.kafka.common.header.Headers;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -10,8 +9,8 @@ import java.time.format.DateTimeParseException;
 import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Optional.ofNullable;
 
+//todo compare with KafkaHeaders
 @UtilityClass
 public class RetryHeaders { //todo remove 'source' prefix?
     public static final String SOURCE_RECORD_APPLICATION_NAME = "retry.source.record.application.name";
@@ -37,12 +36,6 @@ public class RetryHeaders { //todo remove 'source' prefix?
             SOURCE_RECORD_ERROR_TIMESTAMP,
             SOURCE_RECORD_ERROR_MESSAGE
     );
-
-    public static int getDeliveryAttempts(Headers headers) {
-        return ofNullable(headers.lastHeader(RECORD_REDELIVERY_ATTEMPTS))
-                .map(RetryHeaders::integer)
-                .orElse(0);
-    }
 
     public static long longInt(Header header) {
         return Long.parseLong(new String(header.value(), UTF_8));
