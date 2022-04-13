@@ -8,13 +8,13 @@ import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Component;
 
-import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.IntegrationHeaders.getOperation;
 import static com.github.cyberpunkperson.retrayer.integration.logger.MdcKey.FAILED_EVENT;
 import static com.github.cyberpunkperson.retrayer.integration.logger.MdcKey.OPERATION_NAME;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.IntegrationHeaders.getOperation;
 import static java.util.Optional.ofNullable;
 
 @Slf4j
-@Component
+@Component("integrationErrorHandler")
 class IntegrationErrorHandler implements MessageHandler {
 
 

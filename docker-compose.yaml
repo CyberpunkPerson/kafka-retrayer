@@ -1,14 +1,17 @@
 services:
-  postgres:
-    container_name: postgres
-    build: 'environment/postgres'
-    environment:
-      POSTGRES_PASSWORD: postgres
+
+  application:
+    build: .
     ports:
-      - 5432:5432
+      - 8080:8080
+      - 8084:8084
+    networks:
+      monitoring:
+        aliases:
+          - application
 
   zookeeper:
-    container_name: zookeeper
+    container_name: retrayer-zookeeper
     image: confluentinc/cp-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -17,7 +20,7 @@ services:
       - 2181:2181
 
   kafka:
-    container_name: kafka
+    container_name: retrayer-kafka
     image: confluentinc/cp-kafka
     depends_on:
       - zookeeper
@@ -33,3 +36,6 @@ services:
       KSQL_SASL_JAAS_CONFIG: org.apache.kafka.common.security.plain.PlainLoginModule required username="username" password="password"
     volumes:
       - ./volumes/kafka/run/docker.sock:/var/run/docker.sock
+
+networks:
+  monitoring:

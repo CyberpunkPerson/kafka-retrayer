@@ -9,7 +9,10 @@ import org.springframework.integration.kafka.dsl.KafkaProducerMessageHandlerSpec
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.messaging.MessageChannel;
 
-import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.IntegrationHeaders.determinateTopic;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.IntegrationHeaders.extractMessageFey;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.IntegrationHeaders.extractTopic;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_KEY;
+import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.RetryHeaders.SOURCE_RECORD_TOPIC;
 import static org.springframework.integration.dsl.IntegrationFlows.from;
 
 @Configuration(proxyBeanMethods = false)
@@ -26,8 +29,8 @@ class RetryConfiguration {
     KafkaProducerMessageHandlerSpec<byte[], byte[], ?> outboundRetryChannelAdapter(ProducerFactory<byte[], byte[]> retryProducerFactory) {
         return Kafka
                 .outboundChannelAdapter(retryProducerFactory)
-                .topic(determinateTopic())
-                ; //todo messageKey(message -> ?)
+                .topic(extractTopic(SOURCE_RECORD_TOPIC))
+                .messageKey(extractMessageFey(SOURCE_RECORD_KEY));
     }
 
     @Bean
