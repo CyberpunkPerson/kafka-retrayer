@@ -16,7 +16,7 @@ logging:
 
 kafka:
   config:
-    bootstrap-servers: ${kafka.cluster.url}
+    default-cluster: ${kafka.cluster.url}
     properties: &default-kafka-config
       security:
         protocol: SASL_PLAINTEXT
@@ -42,14 +42,16 @@ kafka:
         auto.offset.reset: latest
   topic:
     source:
-      bootstrap-servers: ${kafka.config.bootstrap-servers}
+      bootstrap-servers: ${kafka.config.default-cluster}
       names: ${spring.application.name}.source
       consumer: *default-consumer
-      listener:
-        concurrency: 3
+      listener.concurrency: 3
     retry:
-      bootstrap-servers: ${kafka.config.bootstrap-servers}
-      consumer: *default-consumer
+      bootstrap-servers: ${kafka.config.default-cluster}
+      consumer:
+        <<: *default-consumer
+        listener.concurrency: 3
+        enable-auto-commit: false
       producer: *default-producer
 
 retry:

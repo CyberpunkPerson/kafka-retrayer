@@ -22,7 +22,7 @@ class DefaultRetryFlowConfiguration {
                                      MessageChannel outboundRetryChannel) {
         return from(inboundSourceChannel)
                 .filter(defaultRetryFilter)
-                .handle(defaultRetryFlowHandler)
+                .handle(defaultRetryFlowHandler) //todo replace on transformer
                 .channel(outboundRetryChannel)
                 .get();
     }

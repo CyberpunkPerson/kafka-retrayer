@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retrayer.domain.retry.loop.configuration;
+package com.github.cyberpunkperson.retrayer.domain.retry.loop.configuration.registry;
 
 import com.github.cyberpunkperson.retrayer.domain.retry.configuration.properties.RetryProperties.RetryInterval;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 class RetryLoopAdapterFactory<K, V> {
 
     private final MessageChannel retryLoopChannel;
-    private final MessageChannel integrationErrorChannel;
+    private final MessageChannel retryLoopErrorChannel;
     private final RecordMessageConverter retryMessageConverter;
     private final ConcurrentKafkaListenerContainerFactory<K, V> retryContainerFactory;
 
@@ -29,8 +29,8 @@ class RetryLoopAdapterFactory<K, V> {
         adapter.setPayloadType(byte[].class);
         adapter.setBindSourceRecord(true);
         adapter.setOutputChannel(retryLoopChannel);
-        adapter.setErrorChannel(integrationErrorChannel);
-//        inboundAdapter.setMessageConverter(retryMessageConverter); todo impl
+        adapter.setErrorChannel(retryLoopErrorChannel);
+        adapter.setMessageConverter(retryMessageConverter);
 
         adapter.setBeanName(buildBeanName(retryInterval, ADAPTER_SUFFIX));
         return adapter;

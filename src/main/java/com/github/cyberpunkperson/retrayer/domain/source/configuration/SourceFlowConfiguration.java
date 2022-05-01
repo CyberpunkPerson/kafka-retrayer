@@ -1,6 +1,6 @@
 package com.github.cyberpunkperson.retrayer.domain.source.configuration;
 
-import com.github.cyberpunkperson.retrayer.integration.ChannelBuilder;
+import com.github.cyberpunkperson.retrayer.configuration.ChannelBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.config.EnableIntegration;
@@ -18,12 +18,12 @@ class SourceFlowConfiguration {
 
     @Bean
     KafkaMessageDrivenChannelAdapter<byte[], byte[]> inboundSourceChannelAdapter(ConcurrentMessageListenerContainer<byte[], byte[]> sourceContainer,
-                                                                                 MessageChannel integrationErrorChannel,
+                                                                                 MessageChannel errorChannel,
                                                                                  RecordMessageConverter sourceMessageConverter) {
         var inboundAdapter = new KafkaMessageDrivenChannelAdapter<>(sourceContainer);
         inboundAdapter.setPayloadType(byte[].class);
         inboundAdapter.setBindSourceRecord(true);
-        inboundAdapter.setErrorChannel(integrationErrorChannel);
+        inboundAdapter.setErrorChannel(errorChannel);
         inboundAdapter.setMessageConverter(sourceMessageConverter);
         return inboundAdapter;
     }

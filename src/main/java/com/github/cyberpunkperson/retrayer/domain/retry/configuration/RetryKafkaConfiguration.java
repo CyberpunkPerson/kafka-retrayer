@@ -10,6 +10,9 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.ProducerFactory;
 
+import static java.util.Optional.ofNullable;
+import static org.springframework.kafka.listener.ContainerProperties.AckMode.MANUAL_IMMEDIATE;
+
 
 @Configuration(proxyBeanMethods = false)
 class RetryKafkaConfiguration {
@@ -31,10 +34,14 @@ class RetryKafkaConfiguration {
     }
 
     @Bean
-    ConcurrentKafkaListenerContainerFactory<byte[], byte[]> retryContainerFactory(ConsumerFactory<byte[], byte[]> retryConsumerFactory) {
+    ConcurrentKafkaListenerContainerFactory<byte[], byte[]> retryContainerFactory(KafkaProperties retryTopicProperties,
+                                                                                  ConsumerFactory<byte[], byte[]> retryConsumerFactory) {
         var containerFactory = new ConcurrentKafkaListenerContainerFactory<byte[], byte[]>();
         containerFactory.setConsumerFactory(retryConsumerFactory);
-        containerFactory.setConcurrency(1);
+        containerFactory.getContainerProperties().setAckMode(MANUAL_IMMEDIATE);
+
+        var consumersCount = ofNullable(retryTopicProperties.getListener().getConcurrency()).orElse(1);
+        containerFactory.setConcurrency(consumersCount);
         return containerFactory;
     }
 }

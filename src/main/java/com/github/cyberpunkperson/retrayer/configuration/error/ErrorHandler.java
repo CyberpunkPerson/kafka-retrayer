@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retrayer.integration.error;
+package com.github.cyberpunkperson.retrayer.configuration.error;
 
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -14,8 +14,8 @@ import static com.github.cyberpunkperson.retrayer.integration.metadata.headers.I
 import static java.util.Optional.ofNullable;
 
 @Slf4j
-@Component("integrationErrorHandler")
-class IntegrationErrorHandler implements MessageHandler {
+@Component("errorHandler")
+class ErrorHandler implements MessageHandler {
 
 
     @Override

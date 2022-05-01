@@ -1,6 +1,6 @@
 package com.github.cyberpunkperson.retrayer.domain.retry.configuration;
 
-import com.github.cyberpunkperson.retrayer.integration.ChannelBuilder;
+import com.github.cyberpunkperson.retrayer.configuration.ChannelBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -31,6 +31,7 @@ class RetryConfiguration {
                 .outboundChannelAdapter(retryProducerFactory)
                 .topic(extractTopic(SOURCE_RECORD_TOPIC))
                 .messageKey(extractMessageFey(SOURCE_RECORD_KEY));
+//                .flush(); todo flush acknowledgement manual
     }
 
     @Bean
