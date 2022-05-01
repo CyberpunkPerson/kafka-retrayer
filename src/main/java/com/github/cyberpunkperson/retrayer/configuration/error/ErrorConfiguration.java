@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retrayer.integration.error;
+package com.github.cyberpunkperson.retrayer.configuration.error;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,18 +10,18 @@ import static org.springframework.integration.dsl.IntegrationFlows.from;
 import static org.springframework.integration.dsl.MessageChannels.direct;
 
 @Configuration(proxyBeanMethods = false)
-class IntegrationErrorConfiguration {
+class ErrorConfiguration {
 
     @Bean
-    MessageChannel integrationErrorChannel() {
+    MessageChannel errorChannel() {
         return direct().get();
     }
 
     @Bean
-    IntegrationFlow integrationErrorFlow(MessageChannel integrationErrorChannel,
-                                         MessageHandler integrationErrorHandler) {
-        return from(integrationErrorChannel)
-                .handle(integrationErrorHandler)
+    IntegrationFlow errorFlow(MessageChannel errorChannel,
+                              MessageHandler errorHandler) {
+        return from(errorChannel)
+                .handle(errorHandler)
                 .get();
     }
 }

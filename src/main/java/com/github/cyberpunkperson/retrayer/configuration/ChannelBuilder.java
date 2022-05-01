@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retrayer.integration;
+package com.github.cyberpunkperson.retrayer.configuration;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,7 @@
-package com.github.cyberpunkperson.retrayer.domain.retry.loop.configuration;
+package com.github.cyberpunkperson.retrayer.domain.retry.loop.configuration.registry;
 
 import com.github.cyberpunkperson.retrayer.domain.retry.configuration.properties.RetryProperties;
 import com.github.cyberpunkperson.retrayer.domain.retry.configuration.properties.RetryProperties.RetryInterval;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.integration.kafka.inbound.KafkaMessageDrivenChannelAdapter;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,7 @@ import java.util.Map;
 import static java.util.stream.Collectors.toMap;
 
 @Service
-class RetryLoopAdapterRegistry<K, V> {
+class RetryLoopAdapterRegistry<K, V> { //todo interface
 
     private final RetryProperties retryProperties;
     private final Map<Duration, KafkaMessageDrivenChannelAdapter<K, V>> retryAdapters;
