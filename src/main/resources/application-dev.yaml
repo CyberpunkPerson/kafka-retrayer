@@ -1,10 +1,10 @@
 spring:
   application:
-    name: retrayer
+    name: retryer
 
 server:
   servlet:
-    context-path: /retrayer
+    context-path: /retryer
 
 logging:
   level:
