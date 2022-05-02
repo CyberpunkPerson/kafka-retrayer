@@ -11,7 +11,7 @@ services:
           - application
 
   zookeeper:
-    container_name: retrayer-zookeeper
+    container_name: retryer-zookeeper
     image: confluentinc/cp-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -20,7 +20,7 @@ services:
       - 2181:2181
 
   kafka:
-    container_name: retrayer-kafka
+    container_name: retryer-kafka
     image: confluentinc/cp-kafka
     depends_on:
       - zookeeper
