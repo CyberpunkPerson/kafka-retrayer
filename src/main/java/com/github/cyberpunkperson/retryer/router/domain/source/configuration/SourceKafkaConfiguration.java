@@ -12,6 +12,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 
 import static java.util.Optional.ofNullable;
+import static org.springframework.kafka.listener.ContainerProperties.AckMode.MANUAL_IMMEDIATE;
 
 @EnableKafka
 @Configuration(proxyBeanMethods = false)
@@ -33,6 +34,7 @@ class SourceKafkaConfiguration {
                                                                                    ConsumerFactory<byte[], byte[]> sourceConsumerFactory) {
         var containerFactory = new ConcurrentKafkaListenerContainerFactory<byte[], byte[]>();
         containerFactory.setConsumerFactory(sourceConsumerFactory);
+        containerFactory.getContainerProperties().setAckMode(MANUAL_IMMEDIATE);
 
         var consumersCount = ofNullable(sourceTopicProperties.getListener().getConcurrency()).orElse(1);
         containerFactory.setConcurrency(consumersCount);

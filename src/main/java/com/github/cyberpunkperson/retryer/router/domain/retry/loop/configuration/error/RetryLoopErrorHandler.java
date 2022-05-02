@@ -12,6 +12,6 @@ class RetryLoopErrorHandler implements MessageHandler {
 
     @Override
     public void handleMessage(Message<?> message) throws MessagingException {
-        System.out.println("Handled"); //tood impl
+        System.out.println("Error handled"); //todo impl
     }
 }
