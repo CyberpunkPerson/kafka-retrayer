@@ -1,24 +1,21 @@
 package com.github.cyberpunkperson.retryer.router.domain.retry.flow.simple;
 
-import com.github.cyberpunkperson.retryer.router.domain.retry.configuration.properties.RetryProperties;
-import com.github.cyberpunkperson.retryer.router.domain.retry.flow.RetryEntry;
-import com.github.cyberpunkperson.retryer.router.domain.archive.configuration.ArchiveFlowConfiguration;
+import com.github.cyberpunkperson.retryer.router.domain.retry.flow.FlowManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.integration.core.GenericSelector;
 import org.springframework.stereotype.Component;
+import src.main.java.com.github.cyberpunkperson.retryer.router.Retryer.RetryEntry;
 
-import static com.github.cyberpunkperson.retryer.router.integration.metadata.headers.IntegrationHeaders.DEFAULT_FLOW;
+import static src.main.java.com.github.cyberpunkperson.retryer.router.Retryer.RetryEntry.Flow.DEFAULT;
 
 @RequiredArgsConstructor
 @Component("defaultRetryFilter")
 class DefaultRetryFlowFilter implements GenericSelector<RetryEntry> {
 
-    private final RetryProperties retryProperties;
+    private final FlowManager flowManager;
 
-
-    @Override //todo make context know about it's spent instead of static predicate
-    public boolean accept(RetryEntry context) {
-        return DEFAULT_FLOW.equals(context.retryFlow()) &&
-                ArchiveFlowConfiguration.FLOW_SPENT.negate().test(context, retryProperties.getFlow(context.retryFlow()));
+    @Override
+    public boolean accept(RetryEntry entry) {
+        return entry.getFlow().equals(DEFAULT) && !flowManager.isFlowOver(entry);
     }
 }

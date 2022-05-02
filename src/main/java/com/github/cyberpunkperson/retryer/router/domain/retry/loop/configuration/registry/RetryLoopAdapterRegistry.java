@@ -1,12 +1,12 @@
 package com.github.cyberpunkperson.retryer.router.domain.retry.loop.configuration.registry;
 
 import com.github.cyberpunkperson.retryer.router.domain.retry.configuration.properties.RetryProperties;
-import com.github.cyberpunkperson.retryer.router.domain.retry.configuration.properties.RetryProperties.RetryInterval;
+import com.google.protobuf.Duration;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.integration.kafka.inbound.KafkaMessageDrivenChannelAdapter;
 import org.springframework.stereotype.Service;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.LoopEntry.RetryInterval;
 
-import java.time.Duration;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -35,7 +35,7 @@ class RetryLoopAdapterRegistry<K, V> { //todo interface
                     beanFactory.registerSingleton(adapter.getBeanName(), adapter);
                     return new IntervalAdapterBundle<>(retryInterval, adapter);
                 })
-                .collect(toMap(bundle -> bundle.interval().duration(), IntervalAdapterBundle::adapter));
+                .collect(toMap(bundle -> bundle.interval().getDuration(), IntervalAdapterBundle::adapter));
     }
 
     private record IntervalAdapterBundle<K, V>(RetryInterval interval,

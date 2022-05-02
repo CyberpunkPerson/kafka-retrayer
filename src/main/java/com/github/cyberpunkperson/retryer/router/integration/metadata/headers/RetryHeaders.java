@@ -20,7 +20,7 @@ public class RetryHeaders { //todo remove 'source' prefix?
     public static final String SOURCE_RECORD_FLOW = "retry.source.record.flow";
     public static final String RECORD_REDELIVERY_ATTEMPTS = "retry.redelivery.attempts";
     public static final String REDELIVERY_RECORD_TIMESTAMP = "retry.redelivery.timestamp";
-    public static final String SOURCE_RECORD_TOPIC = "retry.source.record.topic";
+    public static final String SOURCE_RECORD_TOPIC = "retry.source.record.retryTopic";
     public static final String SOURCE_RECORD_OFFSET = "retry.source.record.offset";
     public static final String SOURCE_RECORD_PARTITION = "retry.source.record.partition";
     public static final String SOURCE_RECORD_ERROR_MESSAGE = "retry.source.record.error.message";
