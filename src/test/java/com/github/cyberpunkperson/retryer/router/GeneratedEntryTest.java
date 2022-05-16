@@ -33,7 +33,9 @@ class GeneratedEntryTest { //todo remove
                 .setErrorMessage("Error message")
                 .build();
         var hexKey = DatatypeConverter.printHexBinary(retryEntry.getKey().toByteArray());
+//        536F6D65206B6579
         var hexEntry = DatatypeConverter.printHexBinary(retryEntry.toByteArray());
+//        0A07706F73746D616E120747726F757049641A05747261736820A61228BA8B0232003A08536F6D65206B6579420A536F6D652076616C75655A00620D4572726F72206D657373616765
         System.out.printf("Stop");
     }
 
@@ -57,7 +59,9 @@ class GeneratedEntryTest { //todo remove
                 .setErrorMessage("Error message")
                 .build();
         var hexKey = DatatypeConverter.printHexBinary(loopEntry.getKey().toByteArray());
+//        536F6D65206B6579
         var hexEntry = DatatypeConverter.printHexBinary(loopEntry.toByteArray());
+//        0A07706F73746D616E120747726F757049641A05747261736820A61228BA8B0232003A08536F6D65206B6579420A536F6D652076616C75654A1C0A0308AC021215726574727965722E696E74657276616C2E5054354D62006A0D4572726F72206D657373616765
         System.out.printf("Stop");
     }
 }

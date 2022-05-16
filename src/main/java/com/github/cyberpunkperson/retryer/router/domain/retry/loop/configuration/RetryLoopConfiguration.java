@@ -1,6 +1,5 @@
 package com.github.cyberpunkperson.retryer.router.domain.retry.loop.configuration;
 
-import com.google.protobuf.AbstractMessageLite;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -9,17 +8,16 @@ import org.springframework.integration.kafka.dsl.KafkaProducerMessageHandlerSpec
 import org.springframework.messaging.MessageChannel;
 import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.LoopEntry;
 
-import static com.github.cyberpunkperson.retryer.router.integration.metadata.headers.IntegrationHeaders.ENTRY_KEY;
-import static com.github.cyberpunkperson.retryer.router.integration.metadata.headers.IntegrationHeaders.ENTRY_TOPIC;
+import static com.github.cyberpunkperson.retryer.router.integration.metadata.headers.IntegrationHeaders.*;
 import static org.springframework.integration.dsl.IntegrationFlows.from;
-import static org.springframework.integration.dsl.MessageChannels.direct;
+import static org.springframework.integration.dsl.MessageChannels.queue;
 
 @Configuration(proxyBeanMethods = false)
 class RetryLoopConfiguration {
 
     @Bean
     MessageChannel retryLoopChannel() {
-        return direct().get();
+        return queue().get();
     }
 
     @Bean
@@ -28,11 +26,9 @@ class RetryLoopConfiguration {
                                   KafkaProducerMessageHandlerSpec<byte[], byte[], ?> outboundRetryChannelAdapter) {
         return from(retryLoopChannel)
                 .handle(retryLoopBarrier)
-                .enrichHeaders(enricher ->
-                        enricher.<LoopEntry>headerFunction(ENTRY_KEY, message -> message.getPayload().getKey()))
-                .enrichHeaders(enricher ->
-                        enricher.<LoopEntry>headerFunction(ENTRY_TOPIC, message -> message.getPayload().getTopic()))
-                .<LoopEntry, byte[]>transform(AbstractMessageLite::toByteArray) //todo refactor to take record value
+                .enrichHeaders(extract(ENTRY_KEY, LoopEntry::getKey))
+                .enrichHeaders(extract(ENTRY_TOPIC, LoopEntry::getTopic))
+                .<LoopEntry, byte[]>transform(entry -> entry.getValue().toByteArray())
                 .handle(outboundRetryChannelAdapter)
                 .get();
     }

@@ -14,7 +14,7 @@ import static org.springframework.util.Assert.hasText;
 @RequiredArgsConstructor
 public class ChannelBuilder {
 
-    private final MessagePublishingErrorHandler defaultMessagePublishingErrorHandler;
+    private final MessagePublishingErrorHandler integrationMessagePublishingErrorHandler;
 
 
     public PublishSubscribeChannelSpec<?> publishSubscribeChannel(String threadNameFormat) {
@@ -23,6 +23,6 @@ public class ChannelBuilder {
                 .setNameFormat(threadNameFormat)
                 .build();
         return publishSubscribe(newSingleThreadExecutor(threadFactory))
-                .errorHandler(defaultMessagePublishingErrorHandler);
+                .errorHandler(integrationMessagePublishingErrorHandler);
     }
 }

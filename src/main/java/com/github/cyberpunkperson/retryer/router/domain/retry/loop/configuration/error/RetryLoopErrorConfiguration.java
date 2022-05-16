@@ -2,6 +2,7 @@ package com.github.cyberpunkperson.retryer.router.domain.retry.loop.configuratio
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.integration.channel.MessagePublishingErrorHandler;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
@@ -24,5 +25,12 @@ class RetryLoopErrorConfiguration {
         return from(retryLoopErrorChannel)
                 .handle(retryLoopErrorHandler)
                 .get();
+    }
+
+    @Bean
+    MessagePublishingErrorHandler retryLoopMessagePublishingErrorHandler(MessageChannel retryLoopErrorChannel) {
+        var errorHandler = new MessagePublishingErrorHandler();
+        errorHandler.setDefaultErrorChannel(retryLoopErrorChannel);
+        return errorHandler;
     }
 }
