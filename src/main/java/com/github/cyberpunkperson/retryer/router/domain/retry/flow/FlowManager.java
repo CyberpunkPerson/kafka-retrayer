@@ -15,7 +15,7 @@ public class FlowManager {
 
     public boolean isFlowOver(RetryEntry retryEntry) {
         var flow = retryProperties.getFlow(retryEntry.getFlow());
-        return retryEntry.getDeliveryAttempt() > flow.size();
+        return retryEntry.getDeliveryAttempt() > flow.size() - 1;
     }
 
     public RetryInterval getNextInterval(RetryEntry retryEntry) {
