@@ -8,9 +8,9 @@ import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Component;
 
-import static com.github.cyberpunkperson.retryer.router.integration.logger.MdcKey.FAILED_EVENT;
-import static com.github.cyberpunkperson.retryer.router.integration.logger.MdcKey.OPERATION_NAME;
-import static com.github.cyberpunkperson.retryer.router.integration.metadata.headers.IntegrationHeaders.getOperation;
+import static com.github.cyberpunkperson.retryer.router.support.constants.MdcKey.FAILED_EVENT;
+import static com.github.cyberpunkperson.retryer.router.support.constants.MdcKey.OPERATION_NAME;
+import static com.github.cyberpunkperson.retryer.router.support.headers.InternalHeaders.getOperation;
 import static java.util.Optional.ofNullable;
 
 @Slf4j
@@ -42,17 +42,9 @@ class ErrorHandler implements MessageHandler {
     }
 
     private void logFailedMessage(MessagingException exception, Message<?> message) {
-        MDC.put(OPERATION_NAME, getOperationCodeFromHeaders(message));
+        MDC.put(OPERATION_NAME, getOperation(message.getHeaders()));
         MDC.put(FAILED_EVENT, message.getPayload().toString());
-        log.error(buildLogMessage(message), exception.getCause());
+        log.error("Integration error occurred", exception.getCause());
         MDC.clear();
-    }
-
-    private static String buildLogMessage(Message<?> message) {
-        return "Integration error - for %s operation with cause:".formatted(getOperationCodeFromHeaders(message));
-    }
-
-    private static String getOperationCodeFromHeaders(Message<?> message) {
-        return getOperation(message.getHeaders());
     }
 }

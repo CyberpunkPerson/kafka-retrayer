@@ -7,12 +7,12 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.kafka.dsl.KafkaProducerMessageHandlerSpec;
 import org.springframework.integration.transformer.GenericTransformer;
 import org.springframework.messaging.MessageChannel;
-import src.main.java.com.github.cyberpunkperson.retryer.router.Retryer.RetryEntry;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.LoopEntry;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerSource.RetryRecord;
 
 import java.util.function.Function;
 
-import static com.github.cyberpunkperson.retryer.router.integration.metadata.headers.IntegrationHeaders.*;
+import static com.github.cyberpunkperson.retryer.router.support.headers.InternalHeaders.*;
 import static org.springframework.integration.dsl.IntegrationFlows.from;
 
 @Configuration(proxyBeanMethods = false)
@@ -20,16 +20,16 @@ class DefaultRetryFlowConfiguration {
 
     @Bean
     IntegrationFlow defaultRetryFlow(MessageChannel inboundSourceChannel,
-                                     GenericSelector<RetryEntry> defaultRetryFilter,
-                                     GenericTransformer<RetryEntry, LoopEntry> defaultRetryFlowTransformer,
-                                     KafkaProducerMessageHandlerSpec<byte[], byte[], ?> outboundRetryChannelAdapter) {
+                                     GenericSelector<RetryRecord> defaultRetryFilter,
+                                     GenericTransformer<RetryRecord, RetryerQueueRecord> defaultRetryFlowTransformer,
+                                     KafkaProducerMessageHandlerSpec<byte[], byte[], ?> outboundChannelAdapter) {
         return from(inboundSourceChannel)
                 .filter(defaultRetryFilter)
                 .transform(defaultRetryFlowTransformer)
-                .enrichHeaders(extract(ENTRY_KEY, (Function<LoopEntry, byte[]>) entry -> entry.getApplicationName().getBytes()))
-                .enrichHeaders(extract(ENTRY_TOPIC, (Function<LoopEntry, String>) entry -> entry.getInterval().getTopic()))
-                .transform(LoopEntry::toByteArray)
-                .handle(outboundRetryChannelAdapter)
+                .enrichHeaders(extract(RECORD_KEY, (Function<RetryerQueueRecord, byte[]>) record -> record.getApplicationName().getBytes()))
+                .enrichHeaders(extract(RECORD_TOPIC, (Function<RetryerQueueRecord, String>) record -> record.getInterval().getTopic()))
+                .transform(RetryerQueueRecord::toByteArray)
+                .handle(outboundChannelAdapter)
                 .get();
     }
 }

@@ -3,17 +3,17 @@ package com.github.cyberpunkperson.retryer.router.domain.archive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.integration.transformer.GenericTransformer;
 import org.springframework.stereotype.Component;
-import src.main.java.com.github.cyberpunkperson.retryer.router.Retryer.RetryEntry;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerArchive.ArchiveEntry;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerArchive.ArchiveRecord;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerSource.RetryRecord;
 
 @Component
 @RequiredArgsConstructor
-class ArchiveFlowTransformer implements GenericTransformer<RetryEntry, ArchiveEntry> {
+class ArchiveFlowTransformer implements GenericTransformer<RetryRecord, ArchiveRecord> {
 
-    private final ArchiveEntryMapper archiveEntryMapper;
+    private final ArchiveRecordMapper archiveRecordMapper;
 
     @Override
-    public ArchiveEntry transform(RetryEntry retryEntry) {
-        return archiveEntryMapper.toArchiveEntryBuilder(retryEntry).build();
+    public ArchiveRecord transform(RetryRecord retryRecord) {
+        return archiveRecordMapper.toArchiveRecordBuilder(retryRecord).build();
     }
 }

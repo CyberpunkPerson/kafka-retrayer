@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
 
-message LoopEntry {
+message RetryerQueueRecord {
 
   string application_name = 1;
 

@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retryer.router.domain.retry.loop.configuration.registry;
+package com.github.cyberpunkperson.retryer.router.domain.retry.queue.configuration.registry;
 
 import com.github.cyberpunkperson.retryer.router.configuration.converter.ProtoMessageConverter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -15,8 +15,8 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.listener.ConsumerProperties;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Service;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.LoopEntry;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.LoopEntry.RetryInterval;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord.RetryInterval;
 
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
@@ -26,28 +26,28 @@ import static org.springframework.integration.dsl.IntegrationFlows.from;
 
 @Service
 @RequiredArgsConstructor
-class RetryMessageSourceFactory<K, V> {
+class RetryerQueueRecordSourceFactory<K, V> {
 
-    private final MessageChannel retryLoopChannel;
-    private final MessagePublishingErrorHandler retryLoopMessagePublishingErrorHandler;
+    private final MessageChannel retryerQueueChannel;
+    private final MessagePublishingErrorHandler retryerQueueMessagePublishingErrorHandler;
     private final ConsumerFactory<K, V> retryConsumerFactory;
 
     private static final String FLOW_SUFFIX = "RetryFlow";
-    private static final String MESSAGE_SOURCE_SUFFIX = "MessageSource";
+    private static final String QUEUE_RECORD_SOURCE_SUFFIX = "QueueRecordSource";
 
 
     public RetryFlowBundle<K, V> createMessageSourceFlow(RetryInterval retryInterval) {
         var source = buildMessageSource(retryInterval);
-        source.setBeanName(formatBeanName(retryInterval, MESSAGE_SOURCE_SUFFIX)); //todo multi partition consumer?
+        source.setBeanName(formatBeanName(retryInterval, QUEUE_RECORD_SOURCE_SUFFIX));
         var flow = from(source, specification ->
                 specification
                         .id(source.getBeanName())
-                        .poller(Pollers //todo avoid of poller
+                        .poller(Pollers
                                 .fixedRate(Duration.ofSeconds(10))
-                                .taskExecutor(buildTaskExecutor(formatBeanName(retryInterval, MESSAGE_SOURCE_SUFFIX + "-%d")))
-                                .errorHandler(retryLoopMessagePublishingErrorHandler))
+                                .taskExecutor(buildTaskExecutor(formatBeanName(retryInterval, QUEUE_RECORD_SOURCE_SUFFIX + "-%d")))
+                                .errorHandler(retryerQueueMessagePublishingErrorHandler))
         )
-                .channel(retryLoopChannel)
+                .channel(retryerQueueChannel)
                 .get();
         flow.setBeanName(formatBeanName(retryInterval, FLOW_SUFFIX));
         return new RetryFlowBundle<>(retryInterval, source, flow);
@@ -61,8 +61,7 @@ class RetryMessageSourceFactory<K, V> {
                         consumerProperties,
                         buildAckCallbackFactory(consumerProperties)
                 )
-                .messageConverter(new ProtoMessageConverter<>(LoopEntry.parser()))
-//                .setBeanFactory() todo multi partition consumer?
+                .messageConverter(new ProtoMessageConverter<>(RetryerQueueRecord.parser()))
                 .get();
     }
 

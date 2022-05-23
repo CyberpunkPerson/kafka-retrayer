@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retryer.router.integration.logger;
+package com.github.cyberpunkperson.retryer.router.support.constants;
 
 import lombok.experimental.UtilityClass;
 
