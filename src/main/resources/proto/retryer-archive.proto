@@ -4,7 +4,7 @@ package src.main.java.com.github.cyberpunkperson.retryer.router;
 
 import "google/protobuf/timestamp.proto";
 
-message ArchiveEntry {
+message ArchiveRecord {
 
   string application_name = 1;
 

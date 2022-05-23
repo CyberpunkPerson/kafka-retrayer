@@ -4,9 +4,9 @@ import com.google.protobuf.Duration;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
-import src.main.java.com.github.cyberpunkperson.retryer.router.Retryer.RetryEntry.Flow;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.LoopEntry.RetryInterval;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.LoopEntry.RetryInterval.Builder;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord.RetryInterval;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord.RetryInterval.Builder;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerSource.RetryRecord.Flow;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +14,7 @@ import java.util.Map.Entry;
 
 import static java.util.stream.Collectors.toMap;
 import static org.springframework.util.Assert.isTrue;
-import static src.main.java.com.github.cyberpunkperson.retryer.router.Retryer.RetryEntry.Flow.DEFAULT;
+import static src.main.java.com.github.cyberpunkperson.retryer.router.RetryerSource.RetryRecord.Flow.DEFAULT;
 
 @Getter
 @ConstructorBinding

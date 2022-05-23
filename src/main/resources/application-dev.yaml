@@ -44,14 +44,16 @@ kafka:
     source:
       bootstrap-servers: ${kafka.config.default-cluster}
       names: ${spring.application.name}.source
-      consumer: *default-consumer
+      consumer:
+        <<: *default-consumer
+        enable-auto-commit: false
       listener.concurrency: 3
-      enable-auto-commit: false
     retry:
       bootstrap-servers: ${kafka.config.default-cluster}
       consumer:
         <<: *default-consumer
         enable-auto-commit: false
+      listener.concurrency: 3
       producer: *default-producer
 
 retry:

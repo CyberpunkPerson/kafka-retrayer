@@ -5,7 +5,7 @@ package src.main.java.com.github.cyberpunkperson.retryer.router;
 import "google/protobuf/timestamp.proto";
 
 
-message RetryEntry {
+message RetryRecord {
 
   string application_name = 1;
 

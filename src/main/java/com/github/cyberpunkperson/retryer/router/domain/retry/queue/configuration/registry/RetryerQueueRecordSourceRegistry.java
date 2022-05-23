@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retryer.router.domain.retry.loop.configuration.registry;
+package com.github.cyberpunkperson.retryer.router.domain.retry.queue.configuration.registry;
 
 import com.github.cyberpunkperson.retryer.router.domain.retry.configuration.properties.RetryProperties;
 import com.google.protobuf.Duration;
@@ -11,17 +11,17 @@ import java.util.Map;
 import static java.util.stream.Collectors.toMap;
 
 @Service
-public class RetryMessageSourceRegistry<K, V> { //todo interface / generics?
+public class RetryerQueueRecordSourceRegistry<K, V> {
 
-    private final Map<Duration, KafkaMessageSource<K, V>> retryMessageSources;
+    private final Map<Duration, KafkaMessageSource<K, V>> retryQueueRecordSources;
 
 
-    public RetryMessageSourceRegistry(RetryProperties retryProperties,
-                                      RetryMessageSourceFactory<K, V> retryMessageSourceFactory,
-                                      IntegrationFlowContext context) {
-        this.retryMessageSources = retryProperties.getIntervals().values().stream()
+    public RetryerQueueRecordSourceRegistry(RetryProperties retryProperties,
+                                            RetryerQueueRecordSourceFactory<K, V> retryerQueueRecordSourceFactory,
+                                            IntegrationFlowContext context) {
+        this.retryQueueRecordSources = retryProperties.getIntervals().values().stream()
                 .map(retryInterval -> {
-                    var bundle = retryMessageSourceFactory.createMessageSourceFlow(retryInterval);
+                    var bundle = retryerQueueRecordSourceFactory.createMessageSourceFlow(retryInterval);
                     context.registration(bundle.flow())
                             .id(bundle.flow().getBeanName())
                             .useFlowIdAsPrefix()
@@ -32,6 +32,6 @@ public class RetryMessageSourceRegistry<K, V> { //todo interface / generics?
     }
 
     public KafkaMessageSource<K, V> getSource(Duration interval) {
-        return retryMessageSources.get(interval);
+        return retryQueueRecordSources.get(interval);
     }
 }

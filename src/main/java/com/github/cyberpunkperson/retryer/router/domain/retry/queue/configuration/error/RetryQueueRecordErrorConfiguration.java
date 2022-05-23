@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retryer.router.domain.retry.loop.configuration.error;
+package com.github.cyberpunkperson.retryer.router.domain.retry.queue.configuration.error;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,26 +11,26 @@ import static org.springframework.integration.dsl.IntegrationFlows.from;
 import static org.springframework.integration.dsl.MessageChannels.direct;
 
 @Configuration(proxyBeanMethods = false)
-class RetryLoopErrorConfiguration {
+class RetryQueueRecordErrorConfiguration {
 
 
     @Bean
-    MessageChannel retryLoopErrorChannel() {
+    MessageChannel retryerQueueErrorChannel() {
         return direct().get();
     }
 
     @Bean
-    IntegrationFlow retryLoopErrorFlow(MessageChannel retryLoopErrorChannel,
-                                       MessageHandler retryLoopErrorHandler) {
-        return from(retryLoopErrorChannel)
-                .handle(retryLoopErrorHandler)
+    IntegrationFlow retryerQueueErrorFlow(MessageChannel retryerQueueErrorChannel,
+                                          MessageHandler retryQueueRecordErrorHandler) {
+        return from(retryerQueueErrorChannel)
+                .handle(retryQueueRecordErrorHandler)
                 .get();
     }
 
     @Bean
-    MessagePublishingErrorHandler retryLoopMessagePublishingErrorHandler(MessageChannel retryLoopErrorChannel) {
+    MessagePublishingErrorHandler retryerQueueMessagePublishingErrorHandler(MessageChannel retryerQueueErrorChannel) {
         var errorHandler = new MessagePublishingErrorHandler();
-        errorHandler.setDefaultErrorChannel(retryLoopErrorChannel);
+        errorHandler.setDefaultErrorChannel(retryerQueueErrorChannel);
         return errorHandler;
     }
 }

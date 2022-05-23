@@ -9,7 +9,7 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.kafka.inbound.KafkaMessageDrivenChannelAdapter;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.messaging.MessageChannel;
-import src.main.java.com.github.cyberpunkperson.retryer.router.Retryer.RetryEntry;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerSource.RetryRecord;
 
 import static org.springframework.integration.dsl.IntegrationFlows.from;
 
@@ -24,7 +24,7 @@ class SourceFlowConfiguration {
         inboundAdapter.setPayloadType(byte[].class);
         inboundAdapter.setBindSourceRecord(true);
         inboundAdapter.setErrorChannel(errorChannel);
-        inboundAdapter.setMessageConverter(new ProtoMessageConverter<>(RetryEntry.parser()));
+        inboundAdapter.setMessageConverter(new ProtoMessageConverter<>(RetryRecord.parser()));
         return inboundAdapter;
     }
 

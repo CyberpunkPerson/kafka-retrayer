@@ -8,12 +8,12 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.kafka.dsl.KafkaProducerMessageHandlerSpec;
 import org.springframework.integration.transformer.GenericTransformer;
 import org.springframework.messaging.MessageChannel;
-import src.main.java.com.github.cyberpunkperson.retryer.router.Retryer.RetryEntry;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerArchive.ArchiveEntry;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerArchive.ArchiveRecord;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerSource.RetryRecord;
 
 import java.util.function.Function;
 
-import static com.github.cyberpunkperson.retryer.router.integration.metadata.headers.IntegrationHeaders.*;
+import static com.github.cyberpunkperson.retryer.router.support.headers.InternalHeaders.*;
 import static org.springframework.integration.dsl.IntegrationFlows.from;
 
 @Configuration(proxyBeanMethods = false)
@@ -21,17 +21,17 @@ public class ArchiveFlowConfiguration {
 
     @Bean
     IntegrationFlow archiveFlow(MessageChannel inboundSourceChannel,
-                                GenericSelector<RetryEntry> archiveFlowFilter,
-                                GenericTransformer<RetryEntry, ArchiveEntry> archiveFlowTransformer,
+                                GenericSelector<RetryRecord> archiveFlowFilter,
+                                GenericTransformer<RetryRecord, ArchiveRecord> archiveFlowTransformer,
                                 @Value("${archive.topic}") String archiveTopic,
-                                KafkaProducerMessageHandlerSpec<byte[], byte[], ?> outboundRetryChannelAdapter) {
+                                KafkaProducerMessageHandlerSpec<byte[], byte[], ?> outboundChannelAdapter) {
         return from(inboundSourceChannel)
                 .filter(archiveFlowFilter)
                 .transform(archiveFlowTransformer)
-                .enrichHeaders(extract(ENTRY_KEY, (Function<ArchiveEntry, byte[]>) entry -> entry.getApplicationName().getBytes()))
-                .enrichHeaders(enricher -> enricher.header(ENTRY_TOPIC, archiveTopic))
-                .transform(ArchiveEntry::toByteArray)
-                .handle(outboundRetryChannelAdapter)
+                .enrichHeaders(extract(RECORD_KEY, (Function<ArchiveRecord, byte[]>) record -> record.getApplicationName().getBytes()))
+                .enrichHeaders(enricher -> enricher.header(RECORD_TOPIC, archiveTopic))
+                .transform(ArchiveRecord::toByteArray)
+                .handle(outboundChannelAdapter)
                 .get();
     }
 }
