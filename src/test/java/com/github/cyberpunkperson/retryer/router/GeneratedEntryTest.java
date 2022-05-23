@@ -40,6 +40,29 @@ class GeneratedEntryTest { //todo remove
     }
 
     @Test
+    void expiredRetryEntry() {
+        var retryEntry = RetryEntry.newBuilder()
+                .setApplicationName("postman")
+                .setGroupId("GroupId")
+                .setTopic("trash")
+                .setOffset(2342)
+                .setPartition(34234)
+                .setTimestamp(Timestamp.getDefaultInstance())
+                .setKey(ByteString.copyFromUtf8("Some key"))
+                .setValue(ByteString.copyFromUtf8("Some value"))
+                .setFlow(DEFAULT)
+                .setDeliveryAttempt(4)
+                .setErrorTimestamp(Timestamp.getDefaultInstance())
+                .setErrorMessage("Error message")
+                .build();
+        var hexKey = DatatypeConverter.printHexBinary(retryEntry.getKey().toByteArray());
+//        536F6D65206B6579
+        var hexEntry = DatatypeConverter.printHexBinary(retryEntry.toByteArray());
+//        0A07706F73746D616E120747726F757049641A05747261736820A61228BA8B0232003A08536F6D65206B6579420A536F6D652076616C756550045A00620D4572726F72206D657373616765
+        System.out.printf("Stop");
+    }
+
+    @Test
     void generateLoopEntry() {
         var loopEntry = LoopEntry.newBuilder()
                 .setApplicationName("postman")
