@@ -1,14 +1,15 @@
 services:
 
-  application:
+  retryer-router:
+    container_name: retryer-router
     build: .
+    depends_on:
+      - kafka
     ports:
-      - 8080:8080
       - 8084:8084
-    networks:
-      monitoring:
-        aliases:
-          - application
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      KAFKA_CLUSTER_URL: kafka:9092
 
   zookeeper:
     container_name: retryer-zookeeper
@@ -33,7 +34,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KSQL_SASL_JAAS_CONFIG: org.apache.kafka.common.security.plain.PlainLoginModule required username="username" password="password"
+      KSQL_SASL_JAAS_CONFIG: org.apache.kafka.common.security.plain.PlainLoginModule required username="retryer" password="retryer"
     volumes:
       - ./volumes/kafka/run/docker.sock:/var/run/docker.sock
 

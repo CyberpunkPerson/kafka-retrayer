@@ -16,13 +16,13 @@ logging:
 
 kafka:
   config:
-    default-cluster: ${kafka.cluster.url}
+    default-cluster: ${KAFKA_CLUSTER_URL}
     properties: &default-kafka-config
       security:
-        protocol: SASL_PLAINTEXT
-      sasl:
-        mechanism: SCRAM-SHA-512
-        jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${kafka.cluster.username}" password="${kafka.cluster.password}";
+#        protocol: SASL_PLAINTEXT
+#      sasl:
+#        mechanism: SCRAM-SHA-512
+#        jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USERNAME}" password="${KAFKA_PASSWORD}";
       request.timeout.ms: 300000
     producer: &default-producer
       key-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
