@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retryer.router.support.constants;
+package com.github.cyberpunkperson.retryer.router.support.constant;
 
 import lombok.experimental.UtilityClass;
 

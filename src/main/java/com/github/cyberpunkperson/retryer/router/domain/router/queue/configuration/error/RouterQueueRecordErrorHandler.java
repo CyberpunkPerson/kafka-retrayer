@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retryer.router.domain.retry.queue.configuration.error;
+package com.github.cyberpunkperson.retryer.router.domain.router.queue.configuration.error;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,17 +10,17 @@ import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Component;
 
-import static com.github.cyberpunkperson.retryer.router.support.constants.MdcKey.FAILED_EVENT;
-import static com.github.cyberpunkperson.retryer.router.support.constants.MdcKey.OPERATION_NAME;
-import static com.github.cyberpunkperson.retryer.router.support.headers.InternalHeaders.getOperation;
+import static com.github.cyberpunkperson.retryer.router.support.constant.MdcKey.FAILED_EVENT;
+import static com.github.cyberpunkperson.retryer.router.support.constant.MdcKey.OPERATION_NAME;
+import static com.github.cyberpunkperson.retryer.router.support.header.InternalHeader.getOperation;
 import static java.util.Optional.ofNullable;
 import static org.springframework.integration.IntegrationMessageHeaderAccessor.ACKNOWLEDGMENT_CALLBACK;
 import static org.springframework.integration.acks.AcknowledgmentCallback.Status.REQUEUE;
 
 @Slf4j
 @RequiredArgsConstructor
-@Component("retryQueueRecordErrorHandler")
-class RetryQueueRecordErrorHandler implements MessageHandler {
+@Component("routerQueueRecordErrorHandler")
+class RouterQueueRecordErrorHandler implements MessageHandler {
 
     @Override
     public void handleMessage(Message<?> failedMessage) throws MessagingException {
@@ -43,7 +43,7 @@ class RetryQueueRecordErrorHandler implements MessageHandler {
                                     exception.getRecords(),
                                     exception.getCause()));
         } else
-            log.error("Integration error {}", failedMessage.getPayload());
+            log.error("Integration error {}", failedMessage.getPayload()); //todo send to archive!!!
     }
 
     private void requeueFailedRetryRecord(Message<?> message) {

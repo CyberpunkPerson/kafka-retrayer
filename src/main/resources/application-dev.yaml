@@ -16,63 +16,54 @@ logging:
 
 kafka:
   config:
-    default-cluster: ${KAFKA_CLUSTER_URL}
-    properties: &default-kafka-config
-      security:
-#        protocol: SASL_PLAINTEXT
-#      sasl:
-#        mechanism: SCRAM-SHA-512
-#        jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USERNAME}" password="${KAFKA_PASSWORD}";
-      request.timeout.ms: 300000
-    producer: &default-producer
-      key-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
-      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    default: &default-kafka-config
+      bootstrap-servers: localhost:29092
       properties:
-        <<: *default-kafka-config
-        acks: all
-    consumer: &default-consumer
-      group-id: ${spring.application.name}
-      key-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
-      properties:
-        <<: *default-kafka-config
-        max.poll.records: 50
-        max.poll.interval.ms: 500000
-        session.timeout.ms: 60000
-        auto.offset.reset: latest
+        request.timeout.ms: 300000
+      producer: &default-producer
+        properties:
+          acks: all
+      consumer: &default-consumer
+        group-id: ${spring.application.name}
+        properties:
+          max.poll.records: 50
+          max.poll.interval.ms: 500000
+          session.timeout.ms: 60000
+          auto.offset.reset: latest
   topic:
     source:
-      bootstrap-servers: ${kafka.config.default-cluster}
-      names: ${spring.application.name}.source
+      name: ${spring.application.name}.source
+      <<: *default-kafka-config
       consumer:
-        <<: *default-consumer
         enable-auto-commit: false
+        <<: *default-consumer
       listener.concurrency: 3
-    retry:
-      bootstrap-servers: ${kafka.config.default-cluster}
+    router:
+      <<: *default-kafka-config
       consumer:
-        <<: *default-consumer
         enable-auto-commit: false
+        <<: *default-consumer
       listener.concurrency: 3
       producer: *default-producer
 
-retry:
-  intervals:
-    PT5M: &5M
-      duration: PT5M
-      topic: ${spring.application.name}.interval.${retry.intervals.PT5M.duration}
-    PT30M: &30M
-      duration: PT30M
-      topic: ${spring.application.name}.interval.${retry.intervals.PT30M.duration}
-    PT1H: &1H
-      duration: PT1H
-      topic: ${spring.application.name}.interval.${retry.intervals.PT1H.duration}
-  flows:
-    default:
-      - *5M
-      - *5M
-      - *30M
-      - *1H
+router:
+  queue:
+    delays:
+      PT5M: &5M
+        duration: PT5M
+        topic: ${spring.application.name}.delay.${router.queue.delays.PT5M.duration}
+      PT30M: &30M
+        duration: PT30M
+        topic: ${spring.application.name}.delay.${router.queue.delays.PT30M.duration}
+      PT1H: &1H
+        duration: PT1H
+        topic: ${spring.application.name}.delay.${router.queue.delays.PT1H.duration}
+    flows:
+      default:
+        - *5M
+        - *5M
+        - *30M
+        - *1H
 
 archive:
-  topic: ${spring.application.name}.archive
+  topic: ${spring.application.name}.archive #todo DLT?

@@ -1,6 +1,6 @@
-package com.github.cyberpunkperson.retryer.router.support.headers;
+package com.github.cyberpunkperson.retryer.router.support.header;
 
-import com.github.cyberpunkperson.retryer.router.support.constants.MdcKey;
+import com.github.cyberpunkperson.retryer.router.support.constant.MdcKey;
 import lombok.experimental.UtilityClass;
 import org.springframework.integration.dsl.HeaderEnricherSpec;
 import org.springframework.messaging.Message;
@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @UtilityClass
-public class InternalHeaders {
+public class InternalHeader {
 
     public static final String RECORD_KEY = "record.key";
     public static final String RECORD_TOPIC = "record.topic";

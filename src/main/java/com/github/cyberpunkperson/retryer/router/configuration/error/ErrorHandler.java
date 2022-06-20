@@ -8,9 +8,9 @@ import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Component;
 
-import static com.github.cyberpunkperson.retryer.router.support.constants.MdcKey.FAILED_EVENT;
-import static com.github.cyberpunkperson.retryer.router.support.constants.MdcKey.OPERATION_NAME;
-import static com.github.cyberpunkperson.retryer.router.support.headers.InternalHeaders.getOperation;
+import static com.github.cyberpunkperson.retryer.router.support.constant.MdcKey.FAILED_EVENT;
+import static com.github.cyberpunkperson.retryer.router.support.constant.MdcKey.OPERATION_NAME;
+import static com.github.cyberpunkperson.retryer.router.support.header.InternalHeader.getOperation;
 import static java.util.Optional.ofNullable;
 
 @Slf4j

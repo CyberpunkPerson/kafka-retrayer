@@ -6,35 +6,39 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
 
-message RetryerQueueRecord {
+message RouterQueueRecord {
 
-  string application_name = 1;
+  bytes id = 1;
 
-  string group_id = 2;
+  google.protobuf.Timestamp created_at = 2;
 
-  string topic = 3;
+  string application_name = 3;
 
-  int64 offset = 4;
+  string group_id = 4;
 
-  int32 partition = 5;
+  string topic = 5;
 
-  google.protobuf.Timestamp timestamp = 6;
+  int64 offset = 6;
 
-  bytes key = 7;
+  int32 partition = 7;
 
-  bytes value = 8;
+  google.protobuf.Timestamp timestamp = 8;
 
-  RetryInterval interval = 9;
+  bytes key = 9;
 
-  int32 delivery_attempt = 10;
+  bytes value = 10;
 
-  google.protobuf.Timestamp redelivery_timestamp = 11;
+  RetryDelay delay = 11;
 
-  google.protobuf.Timestamp error_timestamp = 12;
+  int32 delivery_attempt = 12;
 
-  string error_message = 13;
+  google.protobuf.Timestamp redelivery_timestamp = 13;
 
-  message RetryInterval {
+  google.protobuf.Timestamp error_timestamp = 14;
+
+  string error_message = 15;
+
+  message RetryDelay {
 
     google.protobuf.Duration duration = 1;
 

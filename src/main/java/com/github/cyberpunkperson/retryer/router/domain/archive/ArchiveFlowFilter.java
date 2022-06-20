@@ -1,6 +1,6 @@
 package com.github.cyberpunkperson.retryer.router.domain.archive;
 
-import com.github.cyberpunkperson.retryer.router.domain.retry.flow.FlowManager;
+import com.github.cyberpunkperson.retryer.router.domain.router.flow.FlowManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.integration.core.GenericSelector;
 import org.springframework.stereotype.Component;

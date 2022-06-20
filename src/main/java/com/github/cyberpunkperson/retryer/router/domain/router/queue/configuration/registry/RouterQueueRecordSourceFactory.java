@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retryer.router.domain.retry.queue.configuration.registry;
+package com.github.cyberpunkperson.retryer.router.domain.router.queue.configuration.registry;
 
 import com.github.cyberpunkperson.retryer.router.configuration.converter.ProtoMessageConverter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -15,8 +15,8 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.listener.ConsumerProperties;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Service;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord.RetryInterval;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RouterQueueRecord;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RouterQueueRecord.RetryDelay;
 
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
@@ -26,47 +26,47 @@ import static org.springframework.integration.dsl.IntegrationFlows.from;
 
 @Service
 @RequiredArgsConstructor
-class RetryerQueueRecordSourceFactory<K, V> {
+class RouterQueueRecordSourceFactory<K, V> {
 
-    private final MessageChannel retryerQueueChannel;
-    private final MessagePublishingErrorHandler retryerQueueMessagePublishingErrorHandler;
-    private final ConsumerFactory<K, V> retryConsumerFactory;
+    private final MessageChannel routerQueueChannel;
+    private final MessagePublishingErrorHandler routerQueueMessagePublishingErrorHandler;
+    private final ConsumerFactory<K, V> routerConsumerFactory;
 
     private static final String FLOW_SUFFIX = "RetryFlow";
     private static final String QUEUE_RECORD_SOURCE_SUFFIX = "QueueRecordSource";
 
 
-    public RetryFlowBundle<K, V> createMessageSourceFlow(RetryInterval retryInterval) {
-        var source = buildMessageSource(retryInterval);
-        source.setBeanName(formatBeanName(retryInterval, QUEUE_RECORD_SOURCE_SUFFIX));
+    public RouterFlowBundle<K, V> createMessageSourceFlow(RetryDelay retryDelay) {
+        var source = buildMessageSource(retryDelay);
+        source.setBeanName(formatBeanName(retryDelay, QUEUE_RECORD_SOURCE_SUFFIX));
         var flow = from(source, specification ->
                 specification
                         .id(source.getBeanName())
                         .poller(Pollers
                                 .fixedRate(Duration.ofSeconds(10))
-                                .taskExecutor(buildTaskExecutor(formatBeanName(retryInterval, QUEUE_RECORD_SOURCE_SUFFIX + "-%d")))
-                                .errorHandler(retryerQueueMessagePublishingErrorHandler))
+                                .taskExecutor(buildTaskExecutor(formatBeanName(retryDelay, QUEUE_RECORD_SOURCE_SUFFIX + "-%d")))
+                                .errorHandler(routerQueueMessagePublishingErrorHandler))
         )
-                .channel(retryerQueueChannel)
+                .channel(routerQueueChannel)
                 .get();
-        flow.setBeanName(formatBeanName(retryInterval, FLOW_SUFFIX));
-        return new RetryFlowBundle<>(retryInterval, source, flow);
+        flow.setBeanName(formatBeanName(retryDelay, FLOW_SUFFIX));
+        return new RouterFlowBundle<>(retryDelay, source, flow);
     }
 
-    private KafkaMessageSource<K, V> buildMessageSource(RetryInterval retryInterval) {
-        var consumerProperties = new ConsumerProperties(retryInterval.getTopic());
+    private KafkaMessageSource<K, V> buildMessageSource(RetryDelay retryDelay) {
+        var consumerProperties = new ConsumerProperties(retryDelay.getTopic());
         return Kafka
                 .inboundChannelAdapter(
-                        retryConsumerFactory,
+                        routerConsumerFactory,
                         consumerProperties,
                         buildAckCallbackFactory(consumerProperties)
                 )
-                .messageConverter(new ProtoMessageConverter<>(RetryerQueueRecord.parser()))
+                .messageConverter(new ProtoMessageConverter<>(RouterQueueRecord.parser()))
                 .get();
     }
 
-    private static String formatBeanName(RetryInterval retryInterval, String suffix) {
-        return Duration.ofSeconds(retryInterval.getDuration().getSeconds()).toString().toLowerCase() + suffix;
+    private static String formatBeanName(RetryDelay retryDelay, String suffix) {
+        return Duration.ofSeconds(retryDelay.getDuration().getSeconds()).toString().toLowerCase() + suffix;
     }
 
     private static ExecutorService buildTaskExecutor(String threadNameFormat) {

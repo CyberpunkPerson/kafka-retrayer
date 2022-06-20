@@ -13,7 +13,7 @@ import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerSource.Ret
 
 import java.util.function.Function;
 
-import static com.github.cyberpunkperson.retryer.router.support.headers.InternalHeaders.*;
+import static com.github.cyberpunkperson.retryer.router.support.header.InternalHeader.*;
 import static org.springframework.integration.dsl.IntegrationFlows.from;
 
 @Configuration(proxyBeanMethods = false)

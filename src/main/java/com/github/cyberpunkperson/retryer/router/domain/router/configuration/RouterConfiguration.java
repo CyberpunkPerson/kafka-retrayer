@@ -1,4 +1,4 @@
-package com.github.cyberpunkperson.retryer.router.domain.retry.configuration;
+package com.github.cyberpunkperson.retryer.router.domain.router.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,17 +10,17 @@ import org.springframework.messaging.Message;
 
 import java.util.function.Function;
 
-import static com.github.cyberpunkperson.retryer.router.support.headers.InternalHeaders.*;
+import static com.github.cyberpunkperson.retryer.router.support.header.InternalHeader.*;
 import static java.util.Optional.ofNullable;
 import static org.springframework.kafka.support.KafkaHeaders.ACKNOWLEDGMENT;
 
 @Configuration(proxyBeanMethods = false)
-class RetryConfiguration {
+class RouterConfiguration {
 
     @Bean
-    KafkaProducerMessageHandlerSpec<byte[], byte[], ?> outboundChannelAdapter(ProducerFactory<byte[], byte[]> retryProducerFactory) {
+    KafkaProducerMessageHandlerSpec<byte[], byte[], ?> outboundChannelAdapter(ProducerFactory<byte[], byte[]> routerProducerFactory) {
         return Kafka
-                .outboundChannelAdapter(retryProducerFactory)
+                .outboundChannelAdapter(routerProducerFactory)
                 .topic(extractHeader(RECORD_TOPIC, String.class))
                 .messageKey(extractHeader(RECORD_KEY, byte[].class))
                 .flush(acknowledge());

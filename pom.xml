@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.6.6</version>
+        <version>2.7.0</version>
         <relativePath/>
     </parent>
 
@@ -21,12 +21,24 @@
         <java.version>17</java.version>
 
         <!--Code Generation-->
-        <mapstruct.version>1.4.2.Final</mapstruct.version>
-        <protobuf.version>3.16.0</protobuf.version>
+        <mapstruct.version>1.5.1.Final</mapstruct.version>
+        <protobuf.version>3.19.2</protobuf.version>
 
         <!--Utils-->
         <guava.version>28.2-android</guava.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>ru.progrm-jarvis</groupId>
+                <artifactId>padla-bom</artifactId>
+                <version>1.0.0-rc.8</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -83,6 +95,11 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>ru.progrm-jarvis</groupId>
+            <artifactId>java-commons</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -132,6 +149,14 @@
                             <version>${spring-framework.version}</version>
                         </path>
                     </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>
+                            -Amapstruct.defaultComponentModel=spring
+                        </arg>
+                        <arg>
+                            -Amapstruct.defaultInjectionStrategy=constructor
+                        </arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 
@@ -143,23 +168,17 @@
                     <execution>
                         <goals>
                             <goal>compile</goal>
-                            <goal>compile-custom</goal>
+                            <goal>test-compile</goal>
                         </goals>
-                        <configuration>
-                            <protoSourceRoot>src/main/resources/proto</protoSourceRoot>
-                            <protocArtifact>
-                                com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
-                            </protocArtifact>
-                            <pluginId>proto-java</pluginId>
-                            <pluginArtifact>
-                                io.grpc:protoc-gen-grpc-java:1.4.0:exe:${os.detected.classifier}
-                            </pluginArtifact>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
+                    </protocArtifact>
+                    <protoSourceRoot>${basedir}/src/main/resources/proto</protoSourceRoot>
+                </configuration>
             </plugin>
         </plugins>
-
         <extensions>
             <extension>
                 <groupId>kr.motd.maven</groupId>

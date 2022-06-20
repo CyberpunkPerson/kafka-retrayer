@@ -5,8 +5,8 @@ import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord.RetryInterval;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RouterQueueRecord;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RouterQueueRecord.RetryDelay;
 import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerSource.RetryRecord;
 
 import javax.xml.bind.DatatypeConverter;
@@ -64,7 +64,7 @@ class GeneratedEntryTest { //todo remove
 
     @Test
     void generateRetryRecord() {
-        var retryRecord = RetryerQueueRecord.newBuilder()
+        var retryRecord = RouterQueueRecord.newBuilder()
                 .setApplicationName("postman")
                 .setGroupId("GroupId")
                 .setTopic("trash")
@@ -73,8 +73,8 @@ class GeneratedEntryTest { //todo remove
                 .setTimestamp(Timestamp.getDefaultInstance())
                 .setKey(ByteString.copyFromUtf8("Some key"))
                 .setValue(ByteString.copyFromUtf8("Some value"))
-                .setInterval(RetryInterval.newBuilder()
-                        .setTopic("retryer.interval.PT5M")
+                .setDelay(RetryDelay.newBuilder()
+                        .setTopic("retryer.delay.PT5M")
                         .setDuration(Durations.fromMinutes(5))
                         .build())
                 .setDeliveryAttempt(0)

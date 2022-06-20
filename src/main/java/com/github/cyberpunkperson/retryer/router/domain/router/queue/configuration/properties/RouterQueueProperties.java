@@ -1,11 +1,11 @@
-package com.github.cyberpunkperson.retryer.router.domain.retry.configuration.properties;
+package com.github.cyberpunkperson.retryer.router.domain.router.queue.configuration.properties;
 
 import com.google.protobuf.Duration;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord.RetryInterval;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord.RetryInterval.Builder;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RouterQueueRecord.RetryDelay;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RouterQueueRecord.RetryDelay.Builder;
 import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerSource.RetryRecord.Flow;
 
 import java.util.List;
@@ -18,26 +18,26 @@ import static src.main.java.com.github.cyberpunkperson.retryer.router.RetryerSou
 
 @Getter
 @ConstructorBinding
-@ConfigurationProperties("retry")
-public class RetryProperties {
+@ConfigurationProperties("router.queue")
+public class RouterQueueProperties {
 
-    private final Map<Duration, RetryInterval> intervals;
-    private final Map<Flow, List<RetryInterval>> flows;
+    private final Map<Duration, RetryDelay> delays;
+    private final Map<Flow, List<RetryDelay>> flows;
 
 
-    RetryProperties(Map<Duration, RetryInterval.Builder> intervals, Map<Flow, List<RetryInterval.Builder>> flows) {
+    RouterQueueProperties(Map<Duration, RetryDelay.Builder> delays, Map<Flow, List<RetryDelay.Builder>> flows) {
         isTrue(flows.containsKey(DEFAULT), "Default flow should to be specified.");
-        this.intervals = intervals.entrySet().stream()
+        this.delays = delays.entrySet().stream()
                 .collect(toMap(Entry::getKey, entry -> entry.getValue().build()));
         this.flows = flows.entrySet().stream()
                 .collect(toMap(Entry::getKey, entry -> entry.getValue().stream().map(Builder::build).toList()));
     }
 
-    public List<RetryInterval> getFlow(Flow flowName) {
+    public List<RetryDelay> getFlow(Flow flowName) {
         return flows.getOrDefault(flowName, flows.get(DEFAULT));
     }
 
-    public RetryInterval getInterval(Flow flowName, int deliveryAttempt) {
+    public RetryDelay getDelay(Flow flowName, int deliveryAttempt) {
         var flow = getFlow(flowName);
         isTrue(deliveryAttempt < flow.size() && deliveryAttempt > 0, "Delivery attempt is out flow scope");
         return getFlow(flowName).get(deliveryAttempt);

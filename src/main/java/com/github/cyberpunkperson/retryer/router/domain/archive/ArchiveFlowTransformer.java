@@ -14,6 +14,6 @@ class ArchiveFlowTransformer implements GenericTransformer<RetryRecord, ArchiveR
 
     @Override
     public ArchiveRecord transform(RetryRecord retryRecord) {
-        return archiveRecordMapper.toArchiveRecordBuilder(retryRecord).build();
+        return archiveRecordMapper.buildArchiveRecord(retryRecord);
     }
 }
