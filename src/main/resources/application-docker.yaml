@@ -17,7 +17,7 @@ logging:
 kafka:
   config:
     default: &default-kafka-config
-      bootstrap-servers: localhost:29092
+      bootstrap-servers: kafka:9092
       properties:
         request.timeout.ms: 300000
       producer: &default-producer

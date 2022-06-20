@@ -8,7 +8,7 @@ services:
     ports:
       - 8084:8084
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: docker
       KAFKA_CLUSTER_URL: kafka:9092
 
   zookeeper:

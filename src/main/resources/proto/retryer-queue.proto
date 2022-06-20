@@ -3,8 +3,10 @@ syntax = "proto3";
 package src.main.java.com.github.cyberpunkperson.retryer.router;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
 
-message ArchiveRecord {
+
+message QueueRecord {
 
   bytes id = 1;
 
@@ -26,15 +28,20 @@ message ArchiveRecord {
 
   bytes value = 10;
 
-  Backoff backoff = 11;
+  RetryDelay delay = 11;
 
   int32 delivery_attempt = 12;
 
-  google.protobuf.Timestamp error_timestamp = 13;
+  google.protobuf.Timestamp redelivery_timestamp = 13;
 
-  string error_message = 14;
+  google.protobuf.Timestamp error_timestamp = 14;
 
-  enum Backoff {
-    DEFAULT = 0;
+  string error_message = 15;
+
+  message RetryDelay {
+
+    google.protobuf.Duration duration = 1;
+
+    string topic = 2;
   }
 }

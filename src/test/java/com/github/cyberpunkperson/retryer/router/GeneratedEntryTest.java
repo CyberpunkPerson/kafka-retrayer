@@ -5,19 +5,19 @@ import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerRouter.RetryerQueueRecord.RetryInterval;
-import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerSource.RetryRecord;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerEntry.RetryRecord;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerQueue.QueueRecord;
+import src.main.java.com.github.cyberpunkperson.retryer.router.RetryerQueue.QueueRecord.RetryDelay;
 
 import javax.xml.bind.DatatypeConverter;
 
-import static src.main.java.com.github.cyberpunkperson.retryer.router.RetryerSource.RetryRecord.Flow.DEFAULT;
+import static src.main.java.com.github.cyberpunkperson.retryer.router.RetryerEntry.RetryRecord.Backoff.DEFAULT;
 
 @SpringJUnitConfig
 class GeneratedEntryTest { //todo remove
 
     @Test
-    void generateSourceRecord() {
+    void generateEntryRecord() {
         var sourceRecord = RetryRecord.newBuilder()
                 .setApplicationName("postman")
                 .setGroupId("GroupId")
@@ -27,7 +27,7 @@ class GeneratedEntryTest { //todo remove
                 .setTimestamp(Timestamp.getDefaultInstance())
                 .setKey(ByteString.copyFromUtf8("Some key"))
                 .setValue(ByteString.copyFromUtf8("Some value"))
-                .setFlow(DEFAULT)
+                .setBackoff(DEFAULT)
                 .setDeliveryAttempt(0)
                 .setErrorTimestamp(Timestamp.getDefaultInstance())
                 .setErrorMessage("Error message")
@@ -40,7 +40,7 @@ class GeneratedEntryTest { //todo remove
     }
 
     @Test
-    void expiredSourceRecord() {
+    void expiredEntryRecord() {
         var sourceRecord = RetryRecord.newBuilder()
                 .setApplicationName("postman")
                 .setGroupId("GroupId")
@@ -50,7 +50,7 @@ class GeneratedEntryTest { //todo remove
                 .setTimestamp(Timestamp.getDefaultInstance())
                 .setKey(ByteString.copyFromUtf8("Some key"))
                 .setValue(ByteString.copyFromUtf8("Some value"))
-                .setFlow(DEFAULT)
+                .setBackoff(DEFAULT)
                 .setDeliveryAttempt(4)
                 .setErrorTimestamp(Timestamp.getDefaultInstance())
                 .setErrorMessage("Error message")
@@ -63,8 +63,8 @@ class GeneratedEntryTest { //todo remove
     }
 
     @Test
-    void generateRetryRecord() {
-        var retryRecord = RetryerQueueRecord.newBuilder()
+    void generateQueueRecord() {
+        var retryRecord = QueueRecord.newBuilder()
                 .setApplicationName("postman")
                 .setGroupId("GroupId")
                 .setTopic("trash")
@@ -73,8 +73,8 @@ class GeneratedEntryTest { //todo remove
                 .setTimestamp(Timestamp.getDefaultInstance())
                 .setKey(ByteString.copyFromUtf8("Some key"))
                 .setValue(ByteString.copyFromUtf8("Some value"))
-                .setInterval(RetryInterval.newBuilder()
-                        .setTopic("retryer.interval.PT5M")
+                .setDelay(RetryDelay.newBuilder()
+                        .setTopic("retryer.delay.PT5M")
                         .setDuration(Durations.fromMinutes(5))
                         .build())
                 .setDeliveryAttempt(0)
