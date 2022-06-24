@@ -17,7 +17,7 @@ logging:
 kafka:
   config:
     default: &default-kafka-config
-      bootstrap-servers: localhost:29092
+      bootstrap-servers: kafka:9092 #localhost:29092 - for launch out of docker
       properties:
         request.timeout.ms: 300000
       producer: &default-producer
@@ -25,45 +25,46 @@ kafka:
           acks: all
       consumer: &default-consumer
         group-id: ${spring.application.name}
+        enable-auto-commit: false
         properties:
           max.poll.records: 50
           max.poll.interval.ms: 500000
           session.timeout.ms: 60000
           auto.offset.reset: latest
   topic:
-    source:
-      name: ${spring.application.name}.source
+    entry:
+      name: ${spring.application.name}.entry
       <<: *default-kafka-config
       consumer:
-        enable-auto-commit: false
         <<: *default-consumer
       listener.concurrency: 3
-    router:
+    queue:
       <<: *default-kafka-config
       consumer:
-        enable-auto-commit: false
         <<: *default-consumer
       listener.concurrency: 3
+    exit:
+      <<: *default-kafka-config
       producer: *default-producer
 
-router:
-  queue:
-    delays:
-      PT5M: &5M
-        duration: PT5M
-        topic: ${spring.application.name}.delay.${router.queue.delays.PT5M.duration}
-      PT30M: &30M
-        duration: PT30M
-        topic: ${spring.application.name}.delay.${router.queue.delays.PT30M.duration}
-      PT1H: &1H
-        duration: PT1H
-        topic: ${spring.application.name}.delay.${router.queue.delays.PT1H.duration}
-    flows:
-      default:
-        - *5M
-        - *5M
-        - *30M
-        - *1H
+
+queue:
+  delays:
+    PT5M: &5M
+      duration: PT5M
+      topic: ${spring.application.name}.delay.${queue.delays.PT5M.duration}
+    PT30M: &30M
+      duration: PT30M
+      topic: ${spring.application.name}.delay.${queue.delays.PT30M.duration}
+    PT1H: &1H
+      duration: PT1H
+      topic: ${spring.application.name}.delay.${queue.delays.PT1H.duration}
+  backoffs:
+    default:
+      - *5M
+      - *5M
+      - *30M
+      - *1H
 
 archive:
-  topic: ${spring.application.name}.archive #todo DLT?
+  topic: ${spring.application.name}.archive

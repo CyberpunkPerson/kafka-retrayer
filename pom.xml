@@ -12,7 +12,7 @@
 
     <groupId>com.github.cyberpunkperson</groupId>
     <artifactId>retryer-router</artifactId>
-    <version>1.0.0</version>
+    <version>0.5.0</version>
 
     <name>Retryer Router</name>
     <description>Retryer router service to route failed messages</description>
